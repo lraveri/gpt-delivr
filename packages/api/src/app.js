@@ -1,6 +1,5 @@
 const express = require('express');
 const OpenAI = require('openai');
-const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
 require('dotenv').config({ path: __dirname + '/../.env' });
@@ -17,10 +16,18 @@ app.use('/api/v1/:module/*', (req, res, next) => {
         return res.status(400).send({ error: 'Missing module' });
     }
 
-    const apiKey = process.env[`${module.toUpperCase()}_OPENAI_API_KEY`];
-    const allowedDomains = process.env[`${module.toUpperCase()}_ALLOWED_DOMAINS_LIST`]?.split(',');
+    let apiKey;
+    let allowedDomains;
 
-    if (process.env.NODE_ENV === 'development') {
+    if(module !== 'default') {
+        apiKey = process.env[`${module.toUpperCase()}_OPENAI_API_KEY`];
+        allowedDomains = process.env[`${module.toUpperCase()}_ALLOWED_DOMAINS_LIST`]?.split(',');
+    } else {
+        apiKey = process.env.OPENAI_API_KEY;
+        allowedDomains = process.env.ALLOWED_DOMAINS_LIST;
+    }
+
+    if (allowedDomains && process.env.NODE_ENV === 'development') {
         allowedDomains.push('http://localhost:9000');
     }
 
@@ -29,7 +36,7 @@ app.use('/api/v1/:module/*', (req, res, next) => {
     }
 
     const origin = req.headers.origin;
-    if (!allowedDomains.includes(origin) && process.env.CORS_ENABLED === "true") {
+    if (allowedDomains && !allowedDomains.includes(origin) && process.env.CORS_ENABLED === "true") {
         return res.status(403).send({ error: 'Not allowed' });
     }
 

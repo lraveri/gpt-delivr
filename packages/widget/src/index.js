@@ -13,8 +13,15 @@ import './chat.css';
     loadCSS('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
     loadCSS('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-    function initializeChat(baseURL, baseColor, logoURL, module, assistantId, initialMessage) {
-        console.log('Initializing chat with baseURL:', baseURL, 'baseColor:', baseColor, 'logoURL:', logoURL, 'module:', module, 'assistantId:', assistantId, 'initialMessage:', initialMessage);
+    function initializeChat(config) {
+
+        const {
+            baseURL,
+            baseColor,
+            module = 'default',
+            assistantId,
+            initialMessage
+        } = config;
 
         const chatButton = document.createElement('div');
         chatButton.id = 'chat-button';
@@ -43,7 +50,6 @@ import './chat.css';
         });
 
         chatButton.addEventListener('click', function() {
-            console.log('Chat button clicked');
             chatWindow.style.visibility = chatWindow.style.visibility === 'hidden' ? 'visible' : 'hidden'; // Alterna visibility
         });
 
@@ -55,13 +61,11 @@ import './chat.css';
 
             displayMessage('...', 'assistant');
 
-            console.log('Sending message:', message);
             const xhr = new XMLHttpRequest();
             xhr.open('POST', `${baseURL}/api/v1/${module}/chat`, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
-                    console.log('POST response received:', xhr.status, xhr.responseText);
                     if (xhr.status === 200) {
                         const response = JSON.parse(xhr.responseText);
                         const chatBody = document.getElementById('chat-body');
@@ -74,7 +78,6 @@ import './chat.css';
         }
 
         function displayMessage(message, sender) {
-            console.log('Displaying message from', sender, ':', message);
             const messageDiv = document.createElement('div');
             messageDiv.className = sender;
             messageDiv.textContent = message;
@@ -99,16 +102,13 @@ import './chat.css';
             }
         });
 
-        console.log('Sending initial GET request to', `${baseURL}/api/v1/${module}/start`);
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', `${baseURL}/api/v1/luca/start`, true);
+        xhr.open('POST', `${baseURL}/api/v1/${module}/start`, true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
-                console.log('GET response received:', xhr.status, xhr.responseText);
                 if (xhr.status === 200) {
                     const response = JSON.parse(xhr.responseText);
                     threadId = response.threadId;
-                    console.log('Received threadId:', threadId);
                     if(initialMessage !== '') {
                         displayMessage(initialMessage, 'assistant');
                     }

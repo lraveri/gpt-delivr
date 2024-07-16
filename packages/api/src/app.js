@@ -3,7 +3,7 @@ const OpenAI = require('openai');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
-dotenv.config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 
 const app = express();
 const port = 3000;

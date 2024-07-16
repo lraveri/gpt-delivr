@@ -1,13 +1,16 @@
 {
-  "name": "my-monorepo",
-  "private": true,
+  "name": "gpt-delivr",
+  "version": "0.1.0",
+  "description": "A simple no-code solution for deploying and integrating OpenAI's GPT chatbots in any website.",
+  "license": "MIT",
+  "author": {
+    "name": "Luca Raveri",
+    "email": "info@lucaraveri.com",
+    "url": "https://github.com/lraveri",
+    "author": true
+  },
   "devDependencies": {
     "lerna": "^8.1.6"
   },
-  "workspaces": ["packages/*"],
-  "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "start:api": "lerna run start --scope api",
-    "build:widget": "lerna run build --scope widget"
-  }
+  "workspaces": ["packages/*"]
 }

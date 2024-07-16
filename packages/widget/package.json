@@ -1,15 +1,19 @@
 {
-  "name": "chat-widget",
-  "version": "1.0.0",
+  "name": "gpt-delivr-chat-widget",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
     "start": "webpack serve --mode development"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Luca Raveri",
+    "email": "info@lucaraveri.com",
+    "url": "https://github.com/lraveri",
+    "author": true
+  },
+  "license": "MIT",
   "devDependencies": {
     "css-loader": "^7.1.2",
     "cssnano": "^7.0.4",

@@ -42,7 +42,11 @@
         const assistantId = document.getElementById('assistantId').value;
         const initialMessage = document.getElementById('initialMessage').value;
         const module = document.getElementById('module').value;
-        const baseURL = window.location.href;
+        let baseURL = window.location.href;
+
+        if (baseURL.charAt(baseURL.length - 1) === '/') {
+            baseURL = baseURL.slice(0, -1);
+        }
 
         const colorPattern = /^#([A-Fa-f0-9]{6})$/;
         const colorError = document.getElementById('colorError');
@@ -55,7 +59,7 @@
         }
 
         const scriptContent = `
-&lt;script src="https://cdn.jsdelivr.net/gh/lraveri/gpt-delivr@main/packages/widget/dist/bundle.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/lraveri/gpt-delivr@v0.1.0/packages/widget/dist/bundle.js"&gt;&lt;/script&gt;
 &lt;script&gt;
     initializeChat({
         baseURL: "${baseURL}",

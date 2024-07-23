@@ -78,9 +78,10 @@ import './chat.css';
         }
 
         function displayMessage(message, sender) {
+            const cleanedMessage = message.replace(/【\d+(?::\d+)?†source】/g, '');
             const messageDiv = document.createElement('div');
             messageDiv.className = sender;
-            messageDiv.textContent = message;
+            messageDiv.textContent = cleanedMessage;
             document.getElementById('chat-body').appendChild(messageDiv);
         }
 

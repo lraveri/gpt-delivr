@@ -2,8 +2,75 @@
 <html>
 <head>
     <title>GPT Delivr</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 72 72%22><text y=%22.9em%22 font-size=%2264%22>🚀</text></svg>">
 </head>
-<body>
-<h1>Welcome to GPT Delivr</h1>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md text-center">
+    <div class="flex items-center justify-center mb-4">
+        <span class="text-2xl mr-2">🚀</span>
+        <h1 class="text-2xl font-bold">GPT Delivr</h1>
+    </div>
+    <p class="mb-4 text-gray-500">Generate the script and embed it in your site</p>
+    <form id="chat-config-form" class="space-y-4">
+        <div>
+            <label for="baseColor" class="block text-left">Base Color:</label>
+            <input type="text" id="baseColor" name="baseColor" value="#008000" class="w-full p-2 border border-gray-300 rounded" pattern="^#([A-Fa-f0-9]{6})$" required>
+            <p id="colorError" class="text-red-500 text-left hidden">Please enter a valid hexadecimal color code.</p>
+        </div>
+        <div>
+            <label for="assistantId" class="block text-left">Assistant ID:</label>
+            <input type="text" id="assistantId" name="assistantId" class="w-full p-2 border border-gray-300 rounded" value="asst_cyxbzmgqdbt" required>
+        </div>
+        <div>
+            <label for="initialMessage" class="block text-left">Initial Message:</label>
+            <textarea id="initialMessage" name="initialMessage" class="w-full p-2 border border-gray-300 rounded">Hello, I am your assistant. How can I help you today?</textarea>
+        </div>
+        <div>
+            <label for="module" class="block text-left">Module (optional):</label>
+            <input type="text" id="module" name="module" class="w-full p-2 border border-gray-300 rounded">
+        </div>
+        <button type="button" onclick="generateScript()" class="w-full p-2 bg-green-500 text-white rounded">Generate Script</button>
+    </form>
+    <div id="script-output" class="mt-4 p-2 bg-gray-100 text-left rounded border border-gray-300 hidden"></div>
+</div>
+
+<script>
+
+    function generateScript() {
+        const baseColor = document.getElementById('baseColor').value;
+        const assistantId = document.getElementById('assistantId').value;
+        const initialMessage = document.getElementById('initialMessage').value;
+        const module = document.getElementById('module').value;
+        const baseURL = window.location.href;
+
+        const colorPattern = /^#([A-Fa-f0-9]{6})$/;
+        const colorError = document.getElementById('colorError');
+
+        if (!colorPattern.test(baseColor)) {
+            colorError.classList.remove('hidden');
+            return;
+        } else {
+            colorError.classList.add('hidden');
+        }
+
+        const scriptContent = `
+&lt;script src="https://cdn.jsdelivr.net/gh/lraveri/chat-widget@main/dist/bundle.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+    initializeChat({
+        baseURL: "${baseURL}",
+        baseColor: "${baseColor}",
+        assistantId: "${assistantId}",
+        initialMessage: "${initialMessage}",
+        module: "${module}"
+    });
+&lt;/script&gt;
+            `;
+
+        const scriptOutput = document.getElementById('script-output');
+        scriptOutput.textContent = scriptContent.trim().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        scriptOutput.classList.remove('hidden');
+    }
+</script>
 </body>
 </html>

@@ -1,7 +1,12 @@
 {
   "functions": {
     "api/hello.js": {
-      "memory": 3009,
+      "maxDuration": 60
+    },
+    "api/start.js": {
+      "maxDuration": 60
+    },
+    "api/chat.js": {
       "maxDuration": 60
     }
   }

@@ -10,6 +10,8 @@
     "author": true
   },
   "dependencies": {
-    "edge-runtime": "^3.0.1"
+    "dotenv": "^16.4.5",
+    "edge-runtime": "^3.0.1",
+    "openai": "^4.53.0"
   }
 }

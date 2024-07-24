@@ -62,6 +62,7 @@ import './chat.css';
             displayMessage('...', 'assistant');
 
             const xhr = new XMLHttpRequest();
+            xhr.timeout = 30000;
             xhr.open('POST', `${baseURL}/api/v1/${module}/chat`, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function() {
@@ -104,6 +105,7 @@ import './chat.css';
         });
 
         const xhr = new XMLHttpRequest();
+        xhr.timeout = 30000;
         xhr.open('POST', `${baseURL}/api/v1/${module}/start`, true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {

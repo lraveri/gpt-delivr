@@ -1,15 +1,15 @@
 {
   "version": 2,
-  "functions": {
-    "packages/api/src/app.js": {
-      "runtime": "@vercel/node@2.0.0",
-      "maxDuration": 60
+  "builds": [
+    {
+      "src": "packages/api/src/app.js",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/packages/api/src/app.js"
+      "dest": "packages/api/src/app.js"
     }
   ]
 }

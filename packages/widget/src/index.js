@@ -67,6 +67,11 @@ import './chat.css';
             ws.send(messagePayload);
         }
 
+        function scrollToBottom() {
+            const chatBody = document.getElementById('chat-body');
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
         function displayMessage(message, sender) {
             let cleanedMessage;
             if (typeof message === 'string') {
@@ -83,6 +88,8 @@ import './chat.css';
                 messageDiv.textContent = cleanedMessage;
                 document.getElementById('chat-body').appendChild(messageDiv);
             }
+
+            scrollToBottom();
         }
 
         document.getElementById('chat-send').addEventListener('click', function() {
@@ -113,7 +120,7 @@ import './chat.css';
         ws.onmessage = function(event) {
             const response = JSON.parse(event.data);
             if (response.event === 'textCreated') {
-
+                currentMessage = '';
             } else if (response.event === 'textDelta') {
                 currentMessage += response.data;
                 displayMessage(currentMessage, 'assistant');

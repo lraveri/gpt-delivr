@@ -8,5 +8,8 @@
     "email": "info@lucaraveri.com",
     "url": "https://github.com/lraveri",
     "author": true
+  },
+  "dependencies": {
+    "edge-runtime": "^3.0.1"
   }
 }

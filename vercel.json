@@ -1,7 +1,13 @@
 {
   "functions": {
     "packages/edge-api/api/**/*.js": {
-      "runtime": "edge"
+      "runtime": "@vercel/edge-functions@3.0.1"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/packages/edge-api/api/$1"
+    }
+  ]
 }

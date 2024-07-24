@@ -110,8 +110,12 @@ import './chat.css';
             }
         });
 
+        // Determina il protocollo WebSocket in base al protocollo della pagina
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const wsUrl = `${wsProtocol}://${baseURL.replace(/^https?:\/\//, '')}/api/v1/${module}/chat-stream`;
+
         // Connessione WebSocket
-        ws = new WebSocket(`ws://${baseURL.replace(/^https?:\/\//, '')}/api/v1/${module}/chat-stream`);
+        ws = new WebSocket(wsUrl);
 
         ws.onopen = function() {
             console.log('WebSocket connection established');

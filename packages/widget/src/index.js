@@ -2,8 +2,8 @@ import './chat.css';
 
 (function() {
     let threadId = null;
-    let ws = null;
     let currentMessage = '';
+    let buffer = ''; // Dichiarazione della variabile buffer
 
     function loadCSS(href) {
         const link = document.createElement('link');
@@ -63,8 +63,60 @@ import './chat.css';
 
             displayMessage('...', 'assistant');
 
-            const messagePayload = JSON.stringify({ threadId: threadId, message: message, assistantId: assistantId });
-            ws.send(messagePayload);
+            fetch(`${baseURL}/api/v1/${module}/chat-stream`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ threadId: threadId, message: message, assistantId: assistantId })
+            }).then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                function readStream() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            return;
+                        }
+                        buffer += decoder.decode(value, { stream: true });
+                        processStreamChunk();
+                        readStream();
+                    });
+                }
+                readStream();
+            }).catch(error => {
+                console.error('Error sending message: ', error);
+            });
+        }
+
+        function processStreamChunk() {
+            let position;
+            while ((position = buffer.indexOf('\n\n')) !== -1) {
+                const eventStr = buffer.slice(0, position).trim();
+                buffer = buffer.slice(position + 2);
+
+                if (eventStr) {
+                    const lines = eventStr.split('\n');
+                    const eventObj = {};
+
+                    lines.forEach(line => {
+                        const [key, ...valueParts] = line.split(':');
+                        const value = valueParts.join(':').trim();
+                        eventObj[key.trim()] = value;
+                    });
+
+                    if (eventObj.event === 'textCreated') {
+                        currentMessage = '';
+                    } else if (eventObj.event === 'textDelta') {
+                        const eventParsed = JSON.parse(eventObj.data);
+                        currentMessage += eventParsed.data;
+                        console.log('Current message: ', eventParsed.data);
+                        displayMessage(currentMessage, 'assistant');
+                    } else if (eventObj.error) {
+                        console.error('Error: ', eventObj.error);
+                    }
+                }
+            }
         }
 
         function scrollToBottom() {
@@ -109,37 +161,6 @@ import './chat.css';
                 document.getElementById('chat-send').click();
             }
         });
-
-        // Determina il protocollo WebSocket in base al protocollo della pagina
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const wsUrl = `${wsProtocol}://${baseURL.replace(/^https?:\/\//, '')}/api/v1/${module}/chat-stream`;
-
-        // Connessione WebSocket
-        ws = new WebSocket(wsUrl);
-
-        ws.onopen = function() {
-            console.log('WebSocket connection established');
-        };
-
-        ws.onmessage = function(event) {
-            const response = JSON.parse(event.data);
-            if (response.event === 'textCreated') {
-                currentMessage = '';
-            } else if (response.event === 'textDelta') {
-                currentMessage += response.data;
-                displayMessage(currentMessage, 'assistant');
-            } else if (response.error) {
-                console.error('Error: ', response.error);
-            }
-        };
-
-        ws.onclose = function() {
-            console.log('WebSocket connection closed');
-        };
-
-        ws.onerror = function(error) {
-            console.error('WebSocket error: ', error);
-        };
 
         // Inizializza la conversazione
         const xhr = new XMLHttpRequest();

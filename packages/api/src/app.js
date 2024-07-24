@@ -117,68 +117,55 @@ app.post('/api/v1/:module/chat', async (req, res) => {
     }
 });
 
-// Aggiungi un endpoint WebSocket
-app.ws('/api/v1/:module/chat-stream', (ws, req) => {
-    ws.on('message', async (msg) => {
-        const { threadId, message, assistantId } = JSON.parse(msg);
-        const client = req.client;
+app.post('/api/v1/:module/chat-stream', async (req, res) => {
+    const { threadId, message, assistantId } = req.body;
+    const client = req.client;
 
-        if (!threadId) {
-            ws.send(JSON.stringify({ error: 'Missing threadId' }));
-            return ws.close();
-        }
+    if (!threadId) {
+        res.status(400).json({ error: 'Missing threadId' });
+        return;
+    }
 
-        if (!assistantId) {
-            ws.send(JSON.stringify({ error: 'Missing assistantId' }));
-            return ws.close();
-        }
+    if (!assistantId) {
+        res.status(400).json({ error: 'Missing assistantId' });
+        return;
+    }
 
-        try {
-            await client.beta.threads.messages.create(threadId, {
-                role: 'user',
-                content: message
-            });
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
 
-            const run = client.beta.threads.runs.stream(threadId, {
-                assistant_id: assistantId
-            });
+    try {
+        await client.beta.threads.messages.create(threadId, {
+            role: 'user',
+            content: message
+        });
 
-            run.on('textCreated', (text) => {
-                ws.send(JSON.stringify({ event: 'textCreated', data: text }));
-            });
+        const run = client.beta.threads.runs.stream(threadId, {
+            assistant_id: assistantId
+        });
 
-            run.on('textDelta', (textDelta) => {
-                ws.send(JSON.stringify({ event: 'textDelta', data: textDelta.value }));
-            });
+        run.on('textCreated', (text) => {
+            res.write(`event: textCreated\ndata: ${JSON.stringify({ event: 'textCreated', data: text })}\n\n`);
+        });
 
-            run.on('toolCallCreated', (toolCall) => {
-                ws.send(JSON.stringify({ event: 'toolCallCreated', data: toolCall.type }));
-            });
+        run.on('textDelta', (textDelta) => {
+            res.write(`event: textDelta\ndata: ${JSON.stringify({ event: 'textDelta', data: textDelta.value })}\n\n`);
+        });
 
-            run.on('toolCallDelta', (toolCallDelta) => {
-                if (toolCallDelta.type === 'code_interpreter') {
-                    if (toolCallDelta.code_interpreter.input) {
-                        ws.send(JSON.stringify({ event: 'codeInterpreterInput', data: toolCallDelta.code_interpreter.input }));
-                    }
-                    if (toolCallDelta.code_interpreter.outputs) {
-                        ws.send(JSON.stringify({ event: 'codeInterpreterOutput', data: toolCallDelta.code_interpreter.outputs }));
-                    }
-                }
-            });
+        run.on('close', () => {
+            res.end();
+        });
 
-            run.on('close', () => {
-                ws.close();
-            });
-
-            run.on('error', (error) => {
-                ws.send(JSON.stringify({ error: 'Error during chat process' }));
-                ws.close();
-            });
-        } catch (error) {
-            ws.send(JSON.stringify({ error: 'Error during chat process' }));
-            ws.close();
-        }
-    });
+        run.on('error', (error) => {
+            res.write(`event: error\ndata: ${JSON.stringify({ error: 'Error during chat process' })}\n\n`);
+            res.end();
+        });
+    } catch (error) {
+        res.write(`event: error\ndata: ${JSON.stringify({ error: 'Error during chat process' })}\n\n`);
+        res.end();
+    }
 });
 
 app.listen(port, () => {

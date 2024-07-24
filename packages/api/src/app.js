@@ -2,10 +2,13 @@ const express = require('express');
 const path = require('path');
 const OpenAI = require('openai');
 const bodyParser = require('body-parser');
+const expressWs = require('express-ws');
 
 require('dotenv').config({ path: __dirname + '/../.env' });
 
 const app = express();
+expressWs(app);
+
 const port = 3000;
 
 app.use(express.static(path.join(__dirname, '../public')));
@@ -112,6 +115,70 @@ app.post('/api/v1/:module/chat', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error during chat process' });
     }
+});
+
+// Aggiungi un endpoint WebSocket
+app.ws('/api/v1/:module/chat-stream', (ws, req) => {
+    ws.on('message', async (msg) => {
+        const { threadId, message, assistantId } = JSON.parse(msg);
+        const client = req.client;
+
+        if (!threadId) {
+            ws.send(JSON.stringify({ error: 'Missing threadId' }));
+            return ws.close();
+        }
+
+        if (!assistantId) {
+            ws.send(JSON.stringify({ error: 'Missing assistantId' }));
+            return ws.close();
+        }
+
+        try {
+            await client.beta.threads.messages.create(threadId, {
+                role: 'user',
+                content: message
+            });
+
+            const run = client.beta.threads.runs.stream(threadId, {
+                assistant_id: assistantId
+            });
+
+            run.on('textCreated', (text) => {
+                ws.send(JSON.stringify({ event: 'textCreated', data: text }));
+            });
+
+            run.on('textDelta', (textDelta) => {
+                ws.send(JSON.stringify({ event: 'textDelta', data: textDelta.value }));
+            });
+
+            run.on('toolCallCreated', (toolCall) => {
+                ws.send(JSON.stringify({ event: 'toolCallCreated', data: toolCall.type }));
+            });
+
+            run.on('toolCallDelta', (toolCallDelta) => {
+                if (toolCallDelta.type === 'code_interpreter') {
+                    if (toolCallDelta.code_interpreter.input) {
+                        ws.send(JSON.stringify({ event: 'codeInterpreterInput', data: toolCallDelta.code_interpreter.input }));
+                    }
+                    if (toolCallDelta.code_interpreter.outputs) {
+                        ws.send(JSON.stringify({ event: 'codeInterpreterOutput', data: toolCallDelta.code_interpreter.outputs }));
+                    }
+                }
+            });
+
+            run.on('close', () => {
+                ws.close();
+            });
+
+            run.on('error', (error) => {
+                ws.send(JSON.stringify({ error: 'Error during chat process' }));
+                ws.close();
+            });
+        } catch (error) {
+            ws.send(JSON.stringify({ error: 'Error during chat process' }));
+            ws.close();
+        }
+    });
 });
 
 app.listen(port, () => {

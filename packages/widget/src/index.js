@@ -2,6 +2,8 @@ import './chat.css';
 
 (function() {
     let threadId = null;
+    let ws = null;
+    let currentMessage = '';
 
     function loadCSS(href) {
         const link = document.createElement('link');
@@ -61,29 +63,26 @@ import './chat.css';
 
             displayMessage('...', 'assistant');
 
-            const xhr = new XMLHttpRequest();
-            xhr.timeout = 30000;
-            xhr.open('POST', `${baseURL}/api/v1/${module}/chat`, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
-                        const chatBody = document.getElementById('chat-body');
-                        chatBody.removeChild(chatBody.lastChild);
-                        displayMessage(response.responseMessage, 'assistant');
-                    }
-                }
-            };
-            xhr.send(JSON.stringify({ threadId: threadId, message: message, assistantId: assistantId }));
+            const messagePayload = JSON.stringify({ threadId: threadId, message: message, assistantId: assistantId });
+            ws.send(messagePayload);
         }
 
         function displayMessage(message, sender) {
-            const cleanedMessage = message.replace(/【\d+(?::\d+)?†source】/g, '');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = sender;
-            messageDiv.textContent = cleanedMessage;
-            document.getElementById('chat-body').appendChild(messageDiv);
+            let cleanedMessage;
+            if (typeof message === 'string') {
+                cleanedMessage = message.replace(/【\d+(?::\d+)?†source】/g, '');
+            } else {
+                cleanedMessage = JSON.stringify(message);
+            }
+
+            if (sender === 'assistant' && document.getElementById('chat-body').lastChild && document.getElementById('chat-body').lastChild.className === 'assistant') {
+                document.getElementById('chat-body').lastChild.textContent = cleanedMessage;
+            } else {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = sender;
+                messageDiv.textContent = cleanedMessage;
+                document.getElementById('chat-body').appendChild(messageDiv);
+            }
         }
 
         document.getElementById('chat-send').addEventListener('click', function() {
@@ -104,6 +103,34 @@ import './chat.css';
             }
         });
 
+        // Connessione WebSocket
+        ws = new WebSocket(`ws://${baseURL.replace(/^https?:\/\//, '')}/api/v1/${module}/chat-stream`);
+
+        ws.onopen = function() {
+            console.log('WebSocket connection established');
+        };
+
+        ws.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            if (response.event === 'textCreated') {
+
+            } else if (response.event === 'textDelta') {
+                currentMessage += response.data;
+                displayMessage(currentMessage, 'assistant');
+            } else if (response.error) {
+                console.error('Error: ', response.error);
+            }
+        };
+
+        ws.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+
+        ws.onerror = function(error) {
+            console.error('WebSocket error: ', error);
+        };
+
+        // Inizializza la conversazione
         const xhr = new XMLHttpRequest();
         xhr.timeout = 30000;
         xhr.open('POST', `${baseURL}/api/v1/${module}/start`, true);
@@ -112,7 +139,7 @@ import './chat.css';
                 if (xhr.status === 200) {
                     const response = JSON.parse(xhr.responseText);
                     threadId = response.threadId;
-                    if(initialMessage !== '') {
+                    if (initialMessage !== '') {
                         displayMessage(initialMessage, 'assistant');
                     }
                 }

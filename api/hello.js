@@ -1,7 +1,10 @@
 export const config = {
-    runtime: 'edge', // this is a pre-requisite
+    runtime: "edge",
 };
 
-export default async function handler(req, res) {
-    res.json({ message: 'Hello' });
-}
+const handler = async (req) => {
+
+    return new Response("Hello, World!");
+};
+
+export default handler;

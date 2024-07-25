@@ -61,7 +61,7 @@ import './chat.css';
                 return;
             }
 
-            displayMessage('...', 'assistant');
+            //displayMessage('...', 'assistant');
 
             fetch(`${baseURL}/api/chat`, {
                 method: 'POST',

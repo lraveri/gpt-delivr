@@ -21,7 +21,10 @@ export default async function handler(req) {
     if (!module) {
         return new Response(JSON.stringify({ error: 'Missing module' }), {
             status: 400,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 
@@ -42,7 +45,10 @@ export default async function handler(req) {
     if (!apiKey) {
         return new Response(JSON.stringify({ error: 'Missing API key for module ' + module }), {
             status: 400,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 
@@ -50,7 +56,10 @@ export default async function handler(req) {
     if (allowedDomains && !allowedDomains.includes(origin) && process.env.CORS_ENABLED === 'true') {
         return new Response(JSON.stringify({ error: 'Not allowed' }), {
             status: 403,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 
@@ -59,14 +68,20 @@ export default async function handler(req) {
     if (!threadId) {
         return new Response(JSON.stringify({ error: 'Missing threadId' }), {
             status: 400,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 
     if (!assistantId) {
         return new Response(JSON.stringify({ error: 'Missing assistantId' }), {
             status: 400,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 
@@ -107,12 +122,16 @@ export default async function handler(req) {
                 'Content-Type': 'text/event-stream',
                 'Cache-Control': 'no-cache',
                 'Connection': 'keep-alive',
+                'Access-Control-Allow-Origin': '*'
             },
         });
     } catch (error) {
         return new Response(JSON.stringify({ error: 'Error during chat process' }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 }

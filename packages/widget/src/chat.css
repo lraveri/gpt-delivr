@@ -17,15 +17,15 @@ body {
 }
 
 #chat-header {
-    @apply bg-blue-500 text-white py-2 px-4 flex items-center justify-between rounded-t-none lg:rounded-t-lg;
+    @apply bg-blue-500 text-white py-6 px-6 lg:py-2 lg:px-4 flex items-center justify-between rounded-t-none lg:rounded-t-lg;
 }
 
 #chat-close {
-    @apply cursor-pointer text-xl ml-auto;
+    @apply cursor-pointer text-4xl lg:text-3xl ml-auto;
 }
 
 #chat-body {
-    @apply flex-1 p-4 overflow-y-auto flex flex-col text-lg;
+    @apply flex-1 p-4 overflow-y-auto flex flex-col text-xl lg:text-base;
 }
 
 #chat-input-container {
@@ -33,7 +33,7 @@ body {
 }
 
 #chat-input {
-    @apply border p-2 flex-grow rounded-lg mr-2 outline-none text-lg;
+    @apply border p-2 flex-grow rounded-lg mr-2 outline-none text-xl lg:text-base;
 }
 
 #chat-send {
@@ -41,9 +41,9 @@ body {
 }
 
 .assistant {
-    @apply self-start bg-gray-200 text-black p-4 rounded-lg mb-2 max-w-xs text-lg;
+    @apply self-start bg-gray-100 text-black p-2 rounded-lg mb-2 max-w-xs text-xl lg:text-base;
 }
 
 .user {
-    @apply self-end bg-blue-500 text-white p-4 rounded-lg mb-2 max-w-xs text-lg;
+    @apply self-end bg-gray-100 text-black p-2 rounded-lg mb-2 max-w-xs text-xl lg:text-base;
 }

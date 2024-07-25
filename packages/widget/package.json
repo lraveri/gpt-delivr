@@ -25,7 +25,11 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.5.2",
-    "css-minimizer-webpack-plugin": "^7.0.0"
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "autoprefixer": "^10.4.19",
+    "css-minimizer-webpack-plugin": "^7.0.0",
+    "postcss": "^8.4.40",
+    "postcss-loader": "^8.1.1",
+    "tailwindcss": "^3.4.6"
   }
 }

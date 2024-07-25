@@ -63,12 +63,12 @@ import './chat.css';
 
             displayMessage('...', 'assistant');
 
-            fetch(`${baseURL}/api/v1/${module}/chat-stream`, {
+            fetch(`${baseURL}/api/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ threadId: threadId, message: message, assistantId: assistantId })
+                body: JSON.stringify({ threadId: threadId, message: message, assistantId: assistantId, module: module })
             }).then(response => {
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
@@ -165,7 +165,7 @@ import './chat.css';
         // Inizializza la conversazione
         const xhr = new XMLHttpRequest();
         xhr.timeout = 30000;
-        xhr.open('POST', `${baseURL}/api/v1/${module}/start`, true);
+        xhr.open('POST', `${baseURL}/api/start`, true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
@@ -177,7 +177,7 @@ import './chat.css';
                 }
             }
         };
-        xhr.send(JSON.stringify({ initialMessage: initialMessage }));
+        xhr.send(JSON.stringify({ initialMessage: initialMessage, module: module }));
     }
 
     window.initializeChat = initializeChat;

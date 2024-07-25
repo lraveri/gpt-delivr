@@ -17,7 +17,7 @@ body {
 }
 
 #chat-header {
-    @apply bg-blue-500 text-white py-6 px-6 lg:py-2 lg:px-4 flex items-center justify-between rounded-t-none lg:rounded-t-lg;
+    @apply bg-blue-500 text-white py-4 px-6 lg:py-2 lg:px-4 flex items-center justify-between rounded-t-none lg:rounded-t-lg;
 }
 
 #chat-close {

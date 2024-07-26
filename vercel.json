@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/hello.js": {
-      "memory": 128
+      "memory": 128,
     },
     "api/start.js": {
         "memory": 128
@@ -9,5 +9,6 @@
     "api/chat.js": {
       "memory": 128
     }
-  }
+  },
+  "regions": ["fra1", "cdg1"]
 }
